@@ -1,16 +1,36 @@
 from django.db import models
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
 
 
 # Create your models here.
 class Student(models.Model):
-    name = models.CharField(max_length=255, null = False, blank = False)
-    student_email = models.EmailField(unique= True, null = False, blank = False)
+    name = models.CharField(
+        max_length=255, 
+        null = False, 
+        blank = False,
+        validators=[RegexValidator(r'^[A-Za-z]+ [A-Za-z]\. [A-Za-z]+$','Name must be in the format "First Middle Initial. Last"')]
+    )
+    student_email = models.EmailField(
+        unique= True, 
+        null = False, 
+        blank = False,
+        validators=[
+            RegexValidator(r'[\w]+@school.com', 'Invalid school email format. Please use an email ending with "@school.com".')]
+    )
     personal_email = models.EmailField(unique= True, null = False, blank = False)
-    locker_number = models.IntegerField(unique= True, default=110, null = False, blank = False)
+    locker_number = models.IntegerField(
+        unique= True, 
+        default=110, 
+        null = False, 
+        blank = False,
+        validators=[
+            MinValueValidator(1, message="Ensure this value is greater than or equal to 1."),
+            MaxValueValidator(200, message="Ensure this value is less than or equal to 200.")
+            ]
+        )
     locker_combination = models.CharField(
-        max_length=8,
-        validators=[RegexValidator(r'^\d{2}-\d{2}-\d{2}$', 'Invalid locker combination. Use the format "xx-xx-xx."')],
+        # max_length=8,
+        validators=[RegexValidator(r'^\d{2}-\d{2}-\d{2}$', 'Combination must be in the format "12-12-12"')],
         null=False,
         blank=False,
         default="12-12-12"
